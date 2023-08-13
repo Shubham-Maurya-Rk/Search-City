@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search List</title>
+    <style>
+        .t0 {
+            transform: skew(7deg, 0deg);
+        }
+
+        .t1 {
+            transform: skew(-7deg, 0deg);
+        }
+
+        .hl {
+            background-color: #9607ff91;
+            text-transform: capitalize;
+        }
+
+        body {
+            background-color: #9607ff91;
+            display: flex;
+            margin: 0;
+            padding-top: 10px;;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        input {
+            padding: 10px;
+            outline: none;
+            width: 50vw;
+            border: none;
+            height: 8vh;
+            text-align: center;
+            font-size: 2.2rem;
+        }
+
+        ul {
+            padding: 0;
+            margin: 0;
+            width: 50%;
+            list-style: none;
+        }
+
+        li {
+            background-color: aliceblue;
+            width: 100%;
+            text-align: center;
+            font-size: 1.2rem;
+            padding: 2vh 5px;
+            border: 1px solid rgb(203, 203, 203);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .population {
+            font-size: 16px;
+            color: rgb(160, 156, 156);
+            font-style: italic;
+        }
+
+        @media only screen and (max-width: 600px) {
+            input{
+                width: 90%;
+            }
+            ul{
+                width: 90%;
+            }
+            li{
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <input type="text" placeholder="Type City or State" value="">
+    <ul id="matches">
+    </ul>
+</body>
+<script>
+    let input = document.querySelector('input');
+    let matchCont = document.querySelector('#matches');
+    let endpoint = `https://gist.githubusercontent.com/Miserlou/c5cd8364bf9b2420bb29/raw/2bf258763cdddd704f8ffd3ea9a3e81d25e2c6f6/cities.json`
+    const cities = []
+    fetch(endpoint).then(random => random.json()).then(data => cities.push(...data));
+
+    function findMatch(word) {
+        return cities.filter(place => {
+            const regex = new RegExp(word, 'gi');
+            return place.city.match(regex) || place.state.match(regex);
+        })
+    }
+    function displayMatches() {
+        let matches = findMatch(this.value);
+        let i = 0;
+        let html = matches.map(place => {
+            const regex = new RegExp(this.value, 'gi');
+            let cityname = place.city.replace(regex, `<span class="hl">${this.value}</span>`)
+            let statename = place.state.replace(regex, `<span class="hl">${this.value}</span>`)
+            i = !i;
+            return `
+            <li class="t${i ? 0 : 1}">
+                <span>${cityname}, ${statename}</span>
+                <span class="population">${place.population}</span>
+            </li>
+            `
+        }).join("");
+        matchCont.innerHTML = html;
+    }
+
+    input.addEventListener('change', displayMatches)
+    input.addEventListener('keyup', displayMatches)
+</script>
+
+</html>
